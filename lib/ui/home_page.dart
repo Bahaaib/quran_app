@@ -6,6 +6,10 @@ import 'package:audioplayer/audioplayer.dart';
 import 'package:quran_app/resources/strings.dart';
 import 'package:seekbar/seekbar.dart';
 import 'dart:async';
+import 'package:http/http.dart' as http;
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:quran_app/ui/readers_dialog.dart';
 
 class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
@@ -18,6 +22,9 @@ AudioPlayer _audioPlayer = AudioPlayer();
 double _value = 0.0;
 Duration duration;
 Duration position;
+double _percent = 0.0;
+String selectedAPI = ReadersAPI.readerURL[0];
+
 // ignore: unused_element
 StreamSubscription _positionSubscription;
 // ignore: unused_element
@@ -33,7 +40,6 @@ enum PlayerState { stopped, playing, paused }
 
 class _HomePageState extends State<HomePage> {
   TextEditingController _textEditingController = TextEditingController();
-
 
   @override
   void initState() {
@@ -221,7 +227,9 @@ class _HomePageState extends State<HomePage> {
                               isPlaying
                                   ? Icons.pause_circle_outline
                                   : Icons.play_circle_outline,
-                              color: Colors.greenAccent,
+                              color: isExpanded
+                                  ? Colors.transparent
+                                  : Colors.greenAccent,
                               size: 30.0,
                             ),
                             onPressed: () {
@@ -235,7 +243,7 @@ class _HomePageState extends State<HomePage> {
                               });
                             }),
                         Container(
-                          width: 250.0,
+                          width: 240.0,
                           height: 5.0,
                           child: SeekBar(
                             value: _value,
@@ -248,7 +256,19 @@ class _HomePageState extends State<HomePage> {
                               seekTo(value);
                             },
                           ),
-                        )
+                        ),
+                        IconButton(
+                            icon: Icon(
+                              Icons.person,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              showDialog(
+                                  barrierDismissible: true,
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      ReadersDialog(changeReader));
+                            })
                       ],
                     ),
                   ),
@@ -360,17 +380,16 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> play() async {
     String pageNumber;
-    if(_currentPage == 0){
+    if (_currentPage == 0) {
       pageNumber = '00${_currentPage + 1}';
-    }else if (_currentPage > 0 && _currentPage < 9 ) {
-      pageNumber = '${604- _currentPage + 1}';
+    } else if (_currentPage > 0 && _currentPage < 9) {
+      pageNumber = '${604 - _currentPage + 1}';
     } else if (_currentPage > 9 && _currentPage < 99) {
       pageNumber = '0${604 - _currentPage + 1}';
     } else {
       pageNumber = '00${604 - _currentPage + 1}';
     }
-    await _audioPlayer
-        .play(AppStrings.QURAN_ABDULBASIT_API + 'Page$pageNumber.mp3');
+    await _audioPlayer.play(selectedAPI + 'Page$pageNumber.mp3');
     setState(() => playerState = PlayerState.playing);
   }
 
@@ -390,6 +409,40 @@ class _HomePageState extends State<HomePage> {
   Future<void> seekTo(double portion) async {
     double _exactTime = portion * duration.inSeconds;
     await _audioPlayer.seek(_exactTime);
+  }
+
+  Future<String> get _localPath async {
+    final directory = await getTemporaryDirectory();
+
+    return directory.path;
+  }
+
+  Future<File> get _localFile async {
+    final path = await _localPath;
+    return File('$path/file.txt');
+  }
+
+  Future<void> _downloadAudioFile(String url) async {
+    final client = new http.Client();
+    http.StreamedResponse response =
+        await client.send(http.Request("GET", Uri.parse(url)));
+    var length = response.contentLength;
+    var received = 0;
+    final downloadFile = await _localFile;
+    var sink = downloadFile.openWrite();
+
+    await response.stream.map((s) {
+      received += s.length;
+      _percent = (received / length);
+      print("${(received / length) * 100} %");
+      return s;
+    }).pipe(sink);
+  }
+
+  Future<void> changeReader(int position) async {
+    await stop();
+    selectedAPI = ReadersAPI.readerURL[position];
+    await play();
   }
 }
 
@@ -417,7 +470,8 @@ class _CarouselState extends State<CarouselWidget> {
               _audioPlayer.stop();
               playerState = PlayerState.stopped;
               position = new Duration();
-
+              _percent = 0.0;
+              play();
             });
           },
           items: pagesList.map((color) {
@@ -429,7 +483,6 @@ class _CarouselState extends State<CarouselWidget> {
   }
 
   Widget _buildPagesList(BuildContext context, int position, double width) {
-    print('Expansion State: $isExpanded');
     return Container(
       margin: EdgeInsets.only(top: isExpanded ? 20.0 : 0.0),
       width: MediaQuery.of(context).size.width,
@@ -438,5 +491,20 @@ class _CarouselState extends State<CarouselWidget> {
               image: AssetImage('assets/filtered/$position.jpg'),
               fit: isExpanded ? BoxFit.fill : BoxFit.cover)),
     );
+  }
+
+  Future<void> play() async {
+    String pageNumber;
+    if (_currentPage == 0) {
+      pageNumber = '00${_currentPage + 1}';
+    } else if (_currentPage > 0 && _currentPage < 9) {
+      pageNumber = '${604 - _currentPage + 1}';
+    } else if (_currentPage > 9 && _currentPage < 99) {
+      pageNumber = '0${604 - _currentPage + 1}';
+    } else {
+      pageNumber = '00${604 - _currentPage + 1}';
+    }
+    await _audioPlayer.play(selectedAPI + 'Page$pageNumber.mp3');
+    setState(() => playerState = PlayerState.playing);
   }
 }
