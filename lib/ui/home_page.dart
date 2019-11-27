@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:quran_app/resources/colors.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:audioplayer/audioplayer.dart';
@@ -10,6 +11,10 @@ import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:quran_app/ui/readers_dialog.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
+import 'dart:typed_data';
+
 
 class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
@@ -40,161 +45,169 @@ enum PlayerState { stopped, playing, paused }
 
 class _HomePageState extends State<HomePage> {
   TextEditingController _textEditingController = TextEditingController();
+  Database database;
+  var result;
 
   @override
   void initState() {
     initAudioPlayer();
+    createDatabase();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: isExpanded
           ? null
           : PreferredSize(
-              preferredSize: Size.fromHeight(130.0),
-              child: AppBar(
-                elevation: 0.0,
-                titleSpacing: 0.0,
-                flexibleSpace: Column(
-                  children: <Widget>[
-                    Row(
-                      children: <Widget>[
-                        Container(
-                          padding: EdgeInsets.only(left: 10.0),
-                          margin: EdgeInsets.only(top: 30.0, left: 5.0),
-                          height: 40.0,
-                          width: 280.0,
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(30.0))),
-                          child: TextField(
-                            controller: _textEditingController,
-                            decoration: InputDecoration(
-                                border: InputBorder.none,
-                                hintText: 'Search the verses of the Quran',
-                                hintStyle: TextStyle(color: Colors.grey),
-                                suffixIcon: Icon(Icons.search)),
-                          ),
-                        ),
-                        InkWell(
-                          splashColor: AppColors.primaryColor,
-                          child: Container(
-                            width: 24.0,
-                            height: 24.0,
-                            margin: EdgeInsets.only(top: 30.0, left: 5.0),
-                            child: Icon(
-                              Icons.notifications_active,
-                              color: Colors.white,
-                            ),
-                          ),
-                          onTap: () {
-                            print('Notification pressed');
-                          },
-                        ),
-                        InkWell(
-                          splashColor: AppColors.primaryColor,
-                          child: Container(
-                            width: 24.0,
-                            height: 24.0,
-                            margin: EdgeInsets.only(top: 30.0, left: 15.0),
-                            child: Icon(
-                              Icons.language,
-                              color: Colors.white,
-                            ),
-                          ),
-                          onTap: () {
-                            print('Language pressed');
-                          },
-                        )
-                      ],
+        preferredSize: Size.fromHeight(130.0),
+        child: AppBar(
+          elevation: 0.0,
+          titleSpacing: 0.0,
+          flexibleSpace: Column(
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  Container(
+                    padding: EdgeInsets.only(left: 10.0),
+                    margin: EdgeInsets.only(top: 30.0, left: 5.0),
+                    height: 40.0,
+                    width: 280.0,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius:
+                        BorderRadius.all(Radius.circular(30.0))),
+                    child: TextField(
+                      controller: _textEditingController,
+                      decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: 'Search the verses of the Quran',
+                          hintStyle: TextStyle(color: Colors.grey),
+                          suffixIcon: Icon(Icons.search)),
+                      onChanged: (val) {
+                         _searchInQuranFor(val);
+                        print(result.toString());
+                      },
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        InkWell(
-                          splashColor: AppColors.primaryColor,
-                          child: Container(
-                            width: 80.0,
-                            height: 80.0,
-                            margin: EdgeInsets.only(left: 15.0),
-                            child: Column(
-                              children: <Widget>[
-                                IconButton(
-                                    icon: Icon(
-                                      Icons.content_paste,
-                                      color: Colors.white,
-                                    ),
-                                    onPressed: () {}),
-                                Text(
-                                  'islamic',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ],
-                            ),
-                          ),
-                          onTap: () {
-                            print('islamic pressed');
-                          },
-                        ),
-                        InkWell(
-                          splashColor: AppColors.primaryColor,
-                          child: Container(
-                            width: 80.0,
-                            height: 80.0,
-                            margin: EdgeInsets.only(left: 15.0),
-                            child: Column(
-                              children: <Widget>[
-                                IconButton(
-                                    icon: Icon(
-                                      Icons.note,
-                                      color: Colors.white,
-                                    ),
-                                    onPressed: () {}),
-                                Text(
-                                  'notes',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ],
-                            ),
-                          ),
-                          onTap: () {
-                            print('notes pressed');
-                          },
-                        ),
-                        InkWell(
-                          splashColor: AppColors.primaryColor,
-                          child: Container(
-                            width: 80.0,
-                            height: 80.0,
-                            margin: EdgeInsets.only(left: 15.0),
-                            child: Column(
-                              children: <Widget>[
-                                IconButton(
-                                    icon: Icon(
-                                      Icons.info,
-                                      color: Colors.white,
-                                    ),
-                                    onPressed: () {}),
-                                Text(
-                                  'info',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ],
-                            ),
-                          ),
-                          onTap: () {
-                            print('info pressed');
-                          },
-                        ),
-                      ],
-                    )
-                  ],
-                ),
+                  ),
+                  InkWell(
+                    splashColor: AppColors.primaryColor,
+                    child: Container(
+                      width: 24.0,
+                      height: 24.0,
+                      margin: EdgeInsets.only(top: 30.0, left: 5.0),
+                      child: Icon(
+                        Icons.notifications_active,
+                        color: Colors.white,
+                      ),
+                    ),
+                    onTap: () {
+                      print('Notification pressed');
+                    },
+                  ),
+                  InkWell(
+                    splashColor: AppColors.primaryColor,
+                    child: Container(
+                      width: 24.0,
+                      height: 24.0,
+                      margin: EdgeInsets.only(top: 30.0, left: 15.0),
+                      child: Icon(
+                        Icons.language,
+                        color: Colors.white,
+                      ),
+                    ),
+                    onTap: () {
+                      print('Language pressed');
+                    },
+                  )
+                ],
               ),
-            ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  InkWell(
+                    splashColor: AppColors.primaryColor,
+                    child: Container(
+                      width: 80.0,
+                      height: 80.0,
+                      margin: EdgeInsets.only(left: 15.0),
+                      child: Column(
+                        children: <Widget>[
+                          IconButton(
+                              icon: Icon(
+                                Icons.content_paste,
+                                color: Colors.white,
+                              ),
+                              onPressed: () {}),
+                          Text(
+                            'islamic',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
+                    onTap: () {
+                      print('islamic pressed');
+                    },
+                  ),
+                  InkWell(
+                    splashColor: AppColors.primaryColor,
+                    child: Container(
+                      width: 80.0,
+                      height: 80.0,
+                      margin: EdgeInsets.only(left: 15.0),
+                      child: Column(
+                        children: <Widget>[
+                          IconButton(
+                              icon: Icon(
+                                Icons.note,
+                                color: Colors.white,
+                              ),
+                              onPressed: () {}),
+                          Text(
+                            'notes',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
+                    onTap: () {
+                      print('notes pressed');
+                    },
+                  ),
+                  InkWell(
+                    splashColor: AppColors.primaryColor,
+                    child: Container(
+                      width: 80.0,
+                      height: 80.0,
+                      margin: EdgeInsets.only(left: 15.0),
+                      child: Column(
+                        children: <Widget>[
+                          IconButton(
+                              icon: Icon(
+                                Icons.info,
+                                color: Colors.white,
+                              ),
+                              onPressed: () {}),
+                          Text(
+                            'info',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
+                    onTap: () {
+                      print('info pressed');
+                    },
+                  ),
+                ],
+              )
+            ],
+          ),
+        ),
+      ),
       body: Stack(
         children: <Widget>[
           InkWell(
@@ -212,9 +225,12 @@ class _HomePageState extends State<HomePage> {
                 children: <Widget>[
                   Container(
                     margin:
-                        EdgeInsets.only(bottom: 10.0, left: 10.0, right: 10.0),
+                    EdgeInsets.only(bottom: 10.0, left: 10.0, right: 10.0),
                     height: 50.0,
-                    width: MediaQuery.of(context).size.width,
+                    width: MediaQuery
+                        .of(context)
+                        .size
+                        .width,
                     decoration: BoxDecoration(
                         color: isExpanded
                             ? Colors.transparent
@@ -281,7 +297,7 @@ class _HomePageState extends State<HomePage> {
                                 ? Colors.transparent
                                 : AppColors.primaryColor,
                             borderRadius:
-                                BorderRadius.all(Radius.circular(5.0))),
+                            BorderRadius.all(Radius.circular(5.0))),
                         child: FlatButton(
                             onPressed: () {},
                             child: Text(
@@ -302,7 +318,7 @@ class _HomePageState extends State<HomePage> {
                                 ? Colors.transparent
                                 : AppColors.primaryColor,
                             borderRadius:
-                                BorderRadius.all(Radius.circular(5.0))),
+                            BorderRadius.all(Radius.circular(5.0))),
                         child: FlatButton(
                             onPressed: () {},
                             child: Text(
@@ -323,7 +339,7 @@ class _HomePageState extends State<HomePage> {
                                 ? Colors.transparent
                                 : AppColors.primaryColor,
                             borderRadius:
-                                BorderRadius.all(Radius.circular(5.0))),
+                            BorderRadius.all(Radius.circular(5.0))),
                         child: FlatButton(
                             onPressed: () {},
                             child: Text(
@@ -347,31 +363,51 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  createDatabase() async {
+    String databasesPath = await getDatabasesPath();
+    String dbPath = join(databasesPath, 'assets/database/quran_db.db');
+    bool exists = await databaseExists(dbPath);
+    print('DB Status: $exists');
+
+    //await deleteDatabase(dbPath);
+    // Create the writable database file from the bundled demo database file:
+    ByteData data = await rootBundle.load('assets/database/quran_db.db');
+    List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+    await File(dbPath).writeAsBytes(bytes);
+    database = await openDatabase(dbPath);
+  }
+
+  Future<List> _searchInQuranFor(String query) async {
+    result = await database.rawQuery("SELECT * FROM Quran WHERE AyaDiac LIKE '%$query%'");
+    return result.toList();
+  }
+
   void initAudioPlayer() {
     _audioPlayer = new AudioPlayer();
     _positionSubscription =
-        _audioPlayer.onAudioPositionChanged.listen((p) => setState(() {
+        _audioPlayer.onAudioPositionChanged.listen((p) =>
+            setState(() {
               position = p;
               _value = position.inSeconds / duration.inSeconds;
             }));
     _audioPlayerStateSubscription =
         _audioPlayer.onPlayerStateChanged.listen((s) {
-      if (s == AudioPlayerState.PLAYING) {
-        setState(() => duration = _audioPlayer.duration);
-      } else if (s == AudioPlayerState.STOPPED) {
-        onComplete();
-        setState(() {
-          position = duration;
-          _value = 0.0;
+          if (s == AudioPlayerState.PLAYING) {
+            setState(() => duration = _audioPlayer.duration);
+          } else if (s == AudioPlayerState.STOPPED) {
+            onComplete();
+            setState(() {
+              position = duration;
+              _value = 0.0;
+            });
+          }
+        }, onError: (msg) {
+          setState(() {
+            playerState = PlayerState.stopped;
+            duration = new Duration(seconds: 0);
+            position = new Duration(seconds: 0);
+          });
         });
-      }
-    }, onError: (msg) {
-      setState(() {
-        playerState = PlayerState.stopped;
-        duration = new Duration(seconds: 0);
-        position = new Duration(seconds: 0);
-      });
-    });
   }
 
   void onComplete() {
@@ -425,7 +461,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _downloadAudioFile(String url) async {
     final client = new http.Client();
     http.StreamedResponse response =
-        await client.send(http.Request("GET", Uri.parse(url)));
+    await client.send(http.Request("GET", Uri.parse(url)));
     var length = response.contentLength;
     var received = 0;
     final downloadFile = await _localFile;
@@ -456,10 +492,16 @@ class _CarouselState extends State<CarouselWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery.of(context).size.width,
+      width: MediaQuery
+          .of(context)
+          .size
+          .width,
       child: CarouselSlider(
           scrollPhysics: BouncingScrollPhysics(),
-          height: MediaQuery.of(context).size.height,
+          height: MediaQuery
+              .of(context)
+              .size
+              .height,
           initialPage: 0,
           viewportFraction: 0.99,
           reverse: false,
@@ -485,7 +527,10 @@ class _CarouselState extends State<CarouselWidget> {
   Widget _buildPagesList(BuildContext context, int position, double width) {
     return Container(
       margin: EdgeInsets.only(top: isExpanded ? 20.0 : 0.0),
-      width: MediaQuery.of(context).size.width,
+      width: MediaQuery
+          .of(context)
+          .size
+          .width,
       decoration: BoxDecoration(
           image: DecorationImage(
               image: AssetImage('assets/filtered/$position.jpg'),
