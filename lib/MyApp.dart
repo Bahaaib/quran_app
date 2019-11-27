@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:quran_app/resources/themes.dart';
 import 'package:load/load.dart';
 import 'package:quran_app/ui/home_page.dart';
+import 'package:quran_app/ui/search_page.dart';
 
 class MyApp extends StatelessWidget {
   @override
@@ -13,6 +14,7 @@ class MyApp extends StatelessWidget {
       routes: <String, WidgetBuilder>{
         //SplashScreen.route: (BuildContext context) => SplashScreen(),
         '/': (BuildContext context) => HomePage(),
+        '/search': (BuildContext context) => SearchPage(),
       },
       theme: AppThemes.appTheme,
       builder: (BuildContext context, Widget child) {
