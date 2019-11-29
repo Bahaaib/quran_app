@@ -2,7 +2,7 @@ class Quran {
   int id;
   int soraNum;
   int ayaNum;
-  int pageNum;
+  String pageNum;
   String soraNameAr;
   String ayaBody;
   int partNum;

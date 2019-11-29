@@ -50,7 +50,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     initAudioPlayer();
-    createDatabase();
     super.initState();
   }
 

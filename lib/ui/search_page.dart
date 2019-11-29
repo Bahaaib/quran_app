@@ -1,10 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:quran_app/PODO/quran.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'dart:typed_data';
 import 'dart:io';
 import 'dart:async';
+import 'package:auto_size_text/auto_size_text.dart';
 
 class SearchPage extends StatefulWidget {
   _SearchPageState createState() => _SearchPageState();
@@ -15,6 +19,7 @@ class _SearchPageState extends State<SearchPage> {
   String query = '';
   Database database;
   var result = List();
+  List<Quran> ayaList = List<Quran>();
 
   @override
   void initState() {
@@ -26,6 +31,12 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back,
+              color: Colors.white,
+            ),
+            onPressed: () => Navigator.pop(context)),
         title: Text('Search in Quran'),
       ),
       body: Center(
@@ -43,6 +54,7 @@ class _SearchPageState extends State<SearchPage> {
               child: Directionality(
                   textDirection: TextDirection.rtl,
                   child: TextField(
+                    textInputAction: TextInputAction.search,
                     controller: _textEditingController,
                     decoration: InputDecoration(
                         border: InputBorder.none,
@@ -50,23 +62,33 @@ class _SearchPageState extends State<SearchPage> {
                         hintStyle: TextStyle(color: Colors.grey),
                         suffixIcon: IconButton(
                             icon: Icon(Icons.search),
-                            onPressed: () => _searchInQuranFor(query))),
+                            onPressed: () {
+                              setState(() async {
+                                ayaList.clear();
+                                print(query);
+                                await _searchInQuranFor(query);
+                                print(result.toString());
+                                convertResults();
+                              });
+                            })),
                     onChanged: (val) {
                       query = val;
+                    },
+                    onSubmitted: (query) {
+                      _searchInQuranFor(query);
+                      convertResults();
                     },
                   )),
             ),
             Expanded(
                 child: Container(
-                    width: double.infinity,
-                    height: 400.0,
-                    margin: EdgeInsetsDirectional.only(
-                        top: 20.0, start: 20.0, end: 20.0),
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
+                    margin: EdgeInsetsDirectional.only(top: 10.0),
                     child: ListView.builder(
-                        itemCount: 3,
+                        itemCount: result.length,
                         itemBuilder: (BuildContext context, int position) =>
                             _buildSearchResultListItem(context, position))))
-
           ],
         ),
       ),
@@ -89,47 +111,71 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Future<List> _searchInQuranFor(String query) async {
-    result = await database
-        .rawQuery("SELECT * FROM Quran WHERE AyaDiac LIKE '%$query%'");
+    var output = await database
+        .rawQuery("SELECT * FROM Quran WHERE AyaNoDiac LIKE '%$query%'");
+
+    setState(() {
+      result = output;
+    });
     return result.toList();
+  }
+
+  void convertResults() {
+    ayaList = result.map((json) => Quran.fromJson(json)).toList();
   }
 
   Widget _buildSearchResultListItem(BuildContext context, int position) {
     return Container(
-      color: Colors.black12,
+      padding: EdgeInsetsDirectional.only(start: 20.0, end: 20.0, bottom: 5.0),
+      color: position & 1 == 0 ? Colors.black12 : Colors.white,
       width: MediaQuery.of(context).size.width,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Row(
-            children: <Widget>[
-              Container(
-                child: Text('بسم الله الرحمن الرحيم'),
-              ),
-              Container(
-                child: Icon(Icons.ac_unit),
-              )
-            ],
+          Container(
+            margin:
+                EdgeInsetsDirectional.only(top: 20.0, end: 5.0, bottom: 5.0),
+            child: Text(
+              ayaList[position].ayaBody,
+              maxLines: 4,
+              textAlign: TextAlign.right,
+              style: TextStyle(fontSize: 16.0),
+            ),
           ),
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Container(
-                width: 80.0,
+                width: 105.0,
                 height: 30.0,
-                color: Colors.lightGreenAccent,
-                child: Text('صفحة: 1'),
+                color: Colors.green[300],
+                child: Align(
+                  alignment: AlignmentDirectional.center,
+                  child: Text('Sorat: ${ayaList[position].soraNameAr}',
+                      style: TextStyle(fontSize: 16.0)),
+                ),
               ),
               Container(
-                width: 80.0,
-                height: 30.0,
-                color: Colors.lightGreenAccent,
-                child: Text('جزء: 1'),
-              ),
+                  width: 105.0,
+                  height: 30.0,
+                  color: Colors.yellow[300],
+                  child: Align(
+                    alignment: AlignmentDirectional.center,
+                    child: Text('Part: ${ayaList[position].partNum}',
+                        style: TextStyle(fontSize: 16.0)),
+                  )),
               Container(
-                width: 80.0,
-                height: 30.0,
-                color: Colors.lightGreenAccent,
-                child: Text('سورة: الفاتحة'),
-              )
+                  width: 105.0,
+                  height: 30.0,
+                  color: Colors.purple[200],
+                  child: Align(
+                    alignment: AlignmentDirectional.center,
+                    child: Text(
+                      'Page: ${ayaList[position].pageNum}',
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                  )),
             ],
           )
         ],
