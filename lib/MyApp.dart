@@ -3,6 +3,7 @@ import 'package:quran_app/resources/themes.dart';
 import 'package:load/load.dart';
 import 'package:quran_app/ui/home_page.dart';
 import 'package:quran_app/ui/search_page.dart';
+import 'package:quran_app/ui/sora_page.dart';
 
 class MyApp extends StatelessWidget {
   @override
@@ -15,6 +16,7 @@ class MyApp extends StatelessWidget {
         //SplashScreen.route: (BuildContext context) => SplashScreen(),
         '/': (BuildContext context) => HomePage(),
         '/search': (BuildContext context) => SearchPage(),
+        '/quran': (BuildContext context) => SoraPage(),
       },
       theme: AppThemes.appTheme,
       builder: (BuildContext context, Widget child) {

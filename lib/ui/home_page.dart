@@ -5,6 +5,7 @@ import 'package:quran_app/resources/colors.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:audioplayer/audioplayer.dart';
 import 'package:quran_app/resources/strings.dart';
+import 'package:quran_app/ui/sora_page.dart';
 import 'package:seekbar/seekbar.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
@@ -16,10 +17,15 @@ import 'package:path/path.dart';
 import 'dart:typed_data';
 
 class HomePage extends StatefulWidget {
+  Function navigateToPage;
+
+  HomePage({this.navigateToPage});
+
   _HomePageState createState() => _HomePageState();
 }
 
 bool isExpanded = false;
+bool isPlayerRequested = false;
 int _currentPage = 0;
 
 AudioPlayer _audioPlayer = AudioPlayer();
@@ -42,9 +48,10 @@ get isPaused => playerState == PlayerState.paused;
 
 enum PlayerState { stopped, playing, paused }
 
+CarouselSlider carouselSlider;
+
 class _HomePageState extends State<HomePage> {
   TextEditingController _textEditingController = TextEditingController();
-  Database database;
   var result;
 
   @override
@@ -68,26 +75,37 @@ class _HomePageState extends State<HomePage> {
                   children: <Widget>[
                     Row(
                       children: <Widget>[
-                        Container(
-                          padding: EdgeInsets.only(left: 10.0),
-                          margin: EdgeInsets.only(top: 30.0, left: 5.0),
-                          height: 40.0,
-                          width: 280.0,
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(30.0))),
-                          child: TextField(
-                            controller: _textEditingController,
-                            decoration: InputDecoration(
-                                border: InputBorder.none,
-                                hintText: 'Search the verses of the Quran',
-                                hintStyle: TextStyle(color: Colors.grey),
-                                suffixIcon: Icon(Icons.search)),
-                            onTap: () {
-                              Navigator.pushNamed(context, '/search');
-                            },
+                        InkWell(
+                          child: Container(
+                            padding: EdgeInsets.only(left: 10.0),
+                            margin: EdgeInsets.only(top: 30.0, left: 5.0),
+                            height: 40.0,
+                            width: 280.0,
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(30.0))),
+                            child: Container(
+                              padding: EdgeInsetsDirectional.only(
+                                  start: 10.0, end: 15.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Text(
+                                    'Search the verses of Quran',
+                                    style: TextStyle(
+                                        color: Colors.grey, fontSize: 16.0),
+                                  ),
+                                  Icon(
+                                    Icons.search,
+                                    color: Colors.grey,
+                                  )
+                                ],
+                              ),
+                            ),
                           ),
+                          onTap: () => Navigator.pushNamed(context, '/search'),
                         ),
                         InkWell(
                           splashColor: AppColors.primaryColor,
@@ -246,8 +264,10 @@ class _HomePageState extends State<HomePage> {
                               setState(() {
                                 if (isPlaying) {
                                   pause();
+                                  isPlayerRequested = false;
                                 } else {
                                   play();
+                                  isPlayerRequested = true;
                                 }
                                 //isPlaying = !isPlaying;
                               });
@@ -270,7 +290,9 @@ class _HomePageState extends State<HomePage> {
                         IconButton(
                             icon: Icon(
                               Icons.person,
-                              color: Colors.white,
+                              color: isExpanded
+                                  ? Colors.transparent
+                                  : AppColors.white,
                             ),
                             onPressed: () {
                               showDialog(
@@ -293,7 +315,15 @@ class _HomePageState extends State<HomePage> {
                             borderRadius:
                                 BorderRadius.all(Radius.circular(5.0))),
                         child: FlatButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              stop();
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => SoraPage(
+                                            navigateToPage: navigateToPage,
+                                          )));
+                            },
                             child: Text(
                               'Quran',
                               style: TextStyle(
@@ -357,33 +387,20 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  createDatabase() async {
-    String databasesPath = await getDatabasesPath();
-    String dbPath = join(databasesPath, 'assets/database/quran_db.db');
-    bool exists = await databaseExists(dbPath);
-    print('DB Status: $exists');
-
-    //await deleteDatabase(dbPath);
-    // Create the writable database file from the bundled demo database file:
-    ByteData data = await rootBundle.load('assets/database/quran_db.db');
-    List<int> bytes =
-        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-    await File(dbPath).writeAsBytes(bytes);
-    database = await openDatabase(dbPath);
-  }
-
-  Future<List> _searchInQuranFor(String query) async {
-    result = await database
-        .rawQuery("SELECT * FROM Quran WHERE AyaDiac LIKE '%$query%'");
-    return result.toList();
-  }
-
   void initAudioPlayer() {
     _audioPlayer = new AudioPlayer();
     _positionSubscription =
         _audioPlayer.onAudioPositionChanged.listen((p) => setState(() {
               position = p;
               _value = position.inSeconds / duration.inSeconds;
+              if (_value == 1.0) {
+                print('PLAYER COMPLETED!');
+                setState(() {
+                  carouselSlider.previousPage(
+                      duration: Duration(milliseconds: 500),
+                      curve: Curves.linear);
+                });
+              }
             }));
     _audioPlayerStateSubscription =
         _audioPlayer.onPlayerStateChanged.listen((s) {
@@ -413,13 +430,14 @@ class _HomePageState extends State<HomePage> {
     String pageNumber;
     if (_currentPage == 0) {
       pageNumber = '00${_currentPage + 1}';
-    } else if (_currentPage > 0 && _currentPage < 9) {
+    } else if (_currentPage > 0 && _currentPage < 506) {
       pageNumber = '${604 - _currentPage + 1}';
-    } else if (_currentPage > 9 && _currentPage < 99) {
+    } else if (_currentPage > 505 && _currentPage < 596) {
       pageNumber = '0${604 - _currentPage + 1}';
     } else {
       pageNumber = '00${604 - _currentPage + 1}';
     }
+    print('REQUESTING PAGE: $pageNumber');
     await _audioPlayer.play(selectedAPI + 'Page$pageNumber.mp3');
     setState(() => playerState = PlayerState.playing);
   }
@@ -475,6 +493,18 @@ class _HomePageState extends State<HomePage> {
     selectedAPI = ReadersAPI.readerURL[position];
     await play();
   }
+
+  void navigateToPage(int position) {
+    if (position == 0) {
+      _currentPage = position + 1;
+    } else if (position > 0 && position < 506) {
+      _currentPage = 604 - position + 1;
+    } else if (position > 505 && position < 596) {
+      _currentPage = 604 - position + 1;
+    } else {
+      _currentPage = 604 - position + 1;
+    }
+  }
 }
 
 class CarouselWidget extends StatefulWidget {
@@ -486,30 +516,34 @@ class _CarouselState extends State<CarouselWidget> {
 
   @override
   Widget build(BuildContext context) {
+    carouselSlider = CarouselSlider(
+        scrollPhysics: BouncingScrollPhysics(),
+        height: MediaQuery.of(context).size.height,
+        initialPage: 0,
+        viewportFraction: 0.99,
+        reverse: false,
+        enlargeCenterPage: true,
+        onPageChanged: (index) {
+          setState(() {
+            _currentPage = index;
+            _audioPlayer.stop();
+            playerState = PlayerState.stopped;
+            position = new Duration();
+            _percent = 0.0;
+            if (isPlayerRequested) {
+              play();
+            }
+          });
+        },
+        items: pagesList.map((color) {
+          return Builder(builder: (BuildContext context) {
+            return _buildPagesList(context, _currentPage, 400.0);
+          });
+        }).toList());
+
     return Container(
       width: MediaQuery.of(context).size.width,
-      child: CarouselSlider(
-          scrollPhysics: BouncingScrollPhysics(),
-          height: MediaQuery.of(context).size.height,
-          initialPage: 0,
-          viewportFraction: 0.99,
-          reverse: false,
-          enlargeCenterPage: true,
-          onPageChanged: (index) {
-            setState(() {
-              _currentPage = index;
-              _audioPlayer.stop();
-              playerState = PlayerState.stopped;
-              position = new Duration();
-              _percent = 0.0;
-              play();
-            });
-          },
-          items: pagesList.map((color) {
-            return Builder(builder: (BuildContext context) {
-              return _buildPagesList(context, _currentPage, 400.0);
-            });
-          }).toList()),
+      child: carouselSlider,
     );
   }
 
@@ -528,9 +562,9 @@ class _CarouselState extends State<CarouselWidget> {
     String pageNumber;
     if (_currentPage == 0) {
       pageNumber = '00${_currentPage + 1}';
-    } else if (_currentPage > 0 && _currentPage < 9) {
+    } else if (_currentPage > 0 && _currentPage < 506) {
       pageNumber = '${604 - _currentPage + 1}';
-    } else if (_currentPage > 9 && _currentPage < 99) {
+    } else if (_currentPage > 505 && _currentPage < 596) {
       pageNumber = '0${604 - _currentPage + 1}';
     } else {
       pageNumber = '00${604 - _currentPage + 1}';

@@ -8,7 +8,6 @@ import 'package:path/path.dart';
 import 'dart:typed_data';
 import 'dart:io';
 import 'dart:async';
-import 'package:auto_size_text/auto_size_text.dart';
 
 class SearchPage extends StatefulWidget {
   _SearchPageState createState() => _SearchPageState();
@@ -64,10 +63,7 @@ class _SearchPageState extends State<SearchPage> {
                             icon: Icon(Icons.search),
                             onPressed: () {
                               setState(() async {
-                                ayaList.clear();
-                                print(query);
                                 await _searchInQuranFor(query);
-                                print(result.toString());
                                 convertResults();
                               });
                             })),
@@ -75,8 +71,10 @@ class _SearchPageState extends State<SearchPage> {
                       query = val;
                     },
                     onSubmitted: (query) {
-                      _searchInQuranFor(query);
-                      convertResults();
+                      setState(() async {
+                        await _searchInQuranFor(query);
+                        convertResults();
+                      });
                     },
                   )),
             ),
@@ -85,10 +83,21 @@ class _SearchPageState extends State<SearchPage> {
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height,
                     margin: EdgeInsetsDirectional.only(top: 10.0),
-                    child: ListView.builder(
-                        itemCount: result.length,
-                        itemBuilder: (BuildContext context, int position) =>
-                            _buildSearchResultListItem(context, position))))
+                    child: result.isEmpty
+                        ? Container(
+                            margin: EdgeInsetsDirectional.only(
+                                top: 20.0, start: 20.0, end: 20.0),
+                            child: Text(
+                              'You can Search Any Word In Aya Quran',
+                              textAlign: TextAlign.center,
+                              style:
+                                  TextStyle(fontSize: 25.0, color: Colors.grey),
+                            ),
+                          )
+                        : ListView.builder(
+                            itemCount: result.length,
+                            itemBuilder: (BuildContext context, int position) =>
+                                _buildSearchResultListItem(context, position))))
           ],
         ),
       ),
@@ -120,7 +129,8 @@ class _SearchPageState extends State<SearchPage> {
     return result.toList();
   }
 
-  void convertResults() {
+  void convertResults() async {
+    ayaList.clear();
     ayaList = result.map((json) => Quran.fromJson(json)).toList();
   }
 
