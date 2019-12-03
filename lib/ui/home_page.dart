@@ -63,162 +63,162 @@ class _HomePageState extends State<HomePage> {
       appBar: isExpanded
           ? null
           : PreferredSize(
-              preferredSize: Size.fromHeight(130.0),
-              child: AppBar(
-                elevation: 0.0,
-                titleSpacing: 0.0,
-                flexibleSpace: Column(
-                  children: <Widget>[
-                    Row(
-                      children: <Widget>[
-                        InkWell(
-                          child: Container(
-                            padding: EdgeInsets.only(left: 10.0),
-                            margin: EdgeInsets.only(top: 30.0, left: 5.0),
-                            height: 40.0,
-                            width: 280.0,
-                            decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(30.0))),
-                            child: Container(
-                              padding: EdgeInsetsDirectional.only(
-                                  start: 10.0, end: 15.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    'Search the verses of Quran',
-                                    style: TextStyle(
-                                        color: Colors.grey, fontSize: 16.0),
-                                  ),
-                                  Icon(
-                                    Icons.search,
-                                    color: Colors.grey,
-                                  )
-                                ],
-                              ),
+        preferredSize: Size.fromHeight(130.0),
+        child: AppBar(
+          elevation: 0.0,
+          titleSpacing: 0.0,
+          flexibleSpace: Column(
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  InkWell(
+                    child: Container(
+                      padding: EdgeInsets.only(left: 10.0),
+                      margin: EdgeInsets.only(top: 30.0, left: 5.0),
+                      height: 40.0,
+                      width: 280.0,
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius:
+                          BorderRadius.all(Radius.circular(30.0))),
+                      child: Container(
+                        padding: EdgeInsetsDirectional.only(
+                            start: 10.0, end: 15.0),
+                        child: Row(
+                          mainAxisAlignment:
+                          MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text(
+                              'Search the verses of Quran',
+                              style: TextStyle(
+                                  color: Colors.grey, fontSize: 16.0),
                             ),
-                          ),
-                          onTap: () => Navigator.pushNamed(context, '/search'),
+                            Icon(
+                              Icons.search,
+                              color: Colors.grey,
+                            )
+                          ],
                         ),
-                        InkWell(
-                          splashColor: AppColors.primaryColor,
-                          child: Container(
-                            width: 24.0,
-                            height: 24.0,
-                            margin: EdgeInsets.only(top: 30.0, left: 5.0),
-                            child: Icon(
-                              Icons.notifications_active,
-                              color: Colors.white,
-                            ),
-                          ),
-                          onTap: () {
-                            print('Notification pressed');
-                          },
-                        ),
-                        InkWell(
-                          splashColor: AppColors.primaryColor,
-                          child: Container(
-                            width: 24.0,
-                            height: 24.0,
-                            margin: EdgeInsets.only(top: 30.0, left: 15.0),
-                            child: Icon(
-                              Icons.language,
-                              color: Colors.white,
-                            ),
-                          ),
-                          onTap: () {
-                            print('Language pressed');
-                          },
-                        )
-                      ],
+                      ),
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        InkWell(
-                          splashColor: AppColors.primaryColor,
-                          child: Container(
-                            width: 80.0,
-                            height: 80.0,
-                            margin: EdgeInsets.only(left: 15.0),
-                            child: Column(
-                              children: <Widget>[
-                                IconButton(
-                                    icon: Icon(
-                                      Icons.content_paste,
-                                      color: Colors.white,
-                                    ),
-                                    onPressed: () {}),
-                                Text(
-                                  'islamic',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ],
-                            ),
-                          ),
-                          onTap: () {
-                            print('islamic pressed');
-                          },
-                        ),
-                        InkWell(
-                          splashColor: AppColors.primaryColor,
-                          child: Container(
-                            width: 80.0,
-                            height: 80.0,
-                            margin: EdgeInsets.only(left: 15.0),
-                            child: Column(
-                              children: <Widget>[
-                                IconButton(
-                                    icon: Icon(
-                                      Icons.note,
-                                      color: Colors.white,
-                                    ),
-                                    onPressed: () {}),
-                                Text(
-                                  'notes',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ],
-                            ),
-                          ),
-                          onTap: () {
-                            print('notes pressed');
-                          },
-                        ),
-                        InkWell(
-                          splashColor: AppColors.primaryColor,
-                          child: Container(
-                            width: 80.0,
-                            height: 80.0,
-                            margin: EdgeInsets.only(left: 15.0),
-                            child: Column(
-                              children: <Widget>[
-                                IconButton(
-                                    icon: Icon(
-                                      Icons.info,
-                                      color: Colors.white,
-                                    ),
-                                    onPressed: () {}),
-                                Text(
-                                  'info',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ],
-                            ),
-                          ),
-                          onTap: () {
-                            print('info pressed');
-                          },
-                        ),
-                      ],
-                    )
-                  ],
-                ),
+                    onTap: () => Navigator.pushNamed(context, '/search'),
+                  ),
+                  InkWell(
+                    splashColor: AppColors.primaryColor,
+                    child: Container(
+                      width: 24.0,
+                      height: 24.0,
+                      margin: EdgeInsets.only(top: 30.0, left: 5.0),
+                      child: Icon(
+                        Icons.notifications_active,
+                        color: Colors.white,
+                      ),
+                    ),
+                    onTap: () {
+                      print('Notification pressed');
+                    },
+                  ),
+                  InkWell(
+                    splashColor: AppColors.primaryColor,
+                    child: Container(
+                      width: 24.0,
+                      height: 24.0,
+                      margin: EdgeInsets.only(top: 30.0, left: 15.0),
+                      child: Icon(
+                        Icons.language,
+                        color: Colors.white,
+                      ),
+                    ),
+                    onTap: () {
+                      print('Language pressed');
+                    },
+                  )
+                ],
               ),
-            ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  InkWell(
+                    splashColor: AppColors.primaryColor,
+                    child: Container(
+                      width: 80.0,
+                      height: 80.0,
+                      margin: EdgeInsets.only(left: 15.0),
+                      child: Column(
+                        children: <Widget>[
+                          IconButton(
+                              icon: Icon(
+                                Icons.content_paste,
+                                color: Colors.white,
+                              ),
+                              onPressed: () {}),
+                          Text(
+                            'islamic',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
+                    onTap: () {
+                      print('islamic pressed');
+                    },
+                  ),
+                  InkWell(
+                    splashColor: AppColors.primaryColor,
+                    child: Container(
+                      width: 80.0,
+                      height: 80.0,
+                      margin: EdgeInsets.only(left: 15.0),
+                      child: Column(
+                        children: <Widget>[
+                          IconButton(
+                              icon: Icon(
+                                Icons.note,
+                                color: Colors.white,
+                              ),
+                              onPressed: () {}),
+                          Text(
+                            'notes',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
+                    onTap: () {
+                      print('notes pressed');
+                    },
+                  ),
+                  InkWell(
+                    splashColor: AppColors.primaryColor,
+                    child: Container(
+                      width: 80.0,
+                      height: 80.0,
+                      margin: EdgeInsets.only(left: 15.0),
+                      child: Column(
+                        children: <Widget>[
+                          IconButton(
+                              icon: Icon(
+                                Icons.info,
+                                color: Colors.white,
+                              ),
+                              onPressed: () {}),
+                          Text(
+                            'info',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
+                    onTap: () {
+                      print('info pressed');
+                    },
+                  ),
+                ],
+              )
+            ],
+          ),
+        ),
+      ),
       body: Stack(
         children: <Widget>[
           InkWell(
@@ -236,9 +236,12 @@ class _HomePageState extends State<HomePage> {
                 children: <Widget>[
                   Container(
                     margin:
-                        EdgeInsets.only(bottom: 10.0, left: 10.0, right: 10.0),
+                    EdgeInsets.only(bottom: 10.0, left: 10.0, right: 10.0),
                     height: 50.0,
-                    width: MediaQuery.of(context).size.width,
+                    width: MediaQuery
+                        .of(context)
+                        .size
+                        .width,
                     decoration: BoxDecoration(
                         color: isExpanded
                             ? Colors.transparent
@@ -309,14 +312,15 @@ class _HomePageState extends State<HomePage> {
                                 ? Colors.transparent
                                 : AppColors.primaryColor,
                             borderRadius:
-                                BorderRadius.all(Radius.circular(5.0))),
+                            BorderRadius.all(Radius.circular(5.0))),
                         child: FlatButton(
                             onPressed: () {
                               stop();
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => SoraPage(
+                                      builder: (context) =>
+                                          SoraPage(
                                             navigateToPage: navigateToPage,
                                           )));
                             },
@@ -338,7 +342,7 @@ class _HomePageState extends State<HomePage> {
                                 ? Colors.transparent
                                 : AppColors.primaryColor,
                             borderRadius:
-                                BorderRadius.all(Radius.circular(5.0))),
+                            BorderRadius.all(Radius.circular(5.0))),
                         child: FlatButton(
                             onPressed: () {},
                             child: Text(
@@ -359,7 +363,7 @@ class _HomePageState extends State<HomePage> {
                                 ? Colors.transparent
                                 : AppColors.primaryColor,
                             borderRadius:
-                                BorderRadius.all(Radius.circular(5.0))),
+                            BorderRadius.all(Radius.circular(5.0))),
                         child: FlatButton(
                             onPressed: () {},
                             child: Text(
@@ -384,9 +388,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   void initAudioPlayer() {
-    _audioPlayer = new AudioPlayer();
+    _audioPlayer = new AudioPlayer(mode: PlayerMode.MEDIA_PLAYER);
+    AudioPlayer.logEnabled = true;
     _positionSubscription =
-        _audioPlayer.onAudioPositionChanged.listen((p) => setState(() {
+        _audioPlayer.onAudioPositionChanged.listen((p) =>
+            setState(() {
               position = p;
               _value = position.inSeconds / duration.inSeconds;
               if (_value == 1.0) {
@@ -398,28 +404,27 @@ class _HomePageState extends State<HomePage> {
                 });
               }
             }));
-    _audioPlayerStateSubscription =
-        _audioPlayer.onPlayerStateChanged.listen((s) {
-      if (s == AudioPlayerState.PLAYING) {
-        setState(() {
-          _audioPlayer
-              .getDuration()
-              .then((val) => duration = Duration(seconds: val));
+
+        _audioPlayer.onDurationChanged.listen((val) {
+           setState(() {
+              duration = val;
+            });
+
+            if (!isPlaying) {
+            onComplete();
+            setState(() {
+              position = duration;
+              _value = 0.0;
+            });
+          }
+        }, onError: (msg) {
+          print(msg);
+          setState(() {
+            playerState = PlayerState.stopped;
+            duration = new Duration(seconds: 0);
+            position = new Duration(seconds: 0);
+          });
         });
-      } else if (s == AudioPlayerState.STOPPED) {
-        onComplete();
-        setState(() {
-          position = duration;
-          _value = 0.0;
-        });
-      }
-    }, onError: (msg) {
-      setState(() {
-        playerState = PlayerState.stopped;
-        duration = new Duration(seconds: 0);
-        position = new Duration(seconds: 0);
-      });
-    });
   }
 
   void onComplete() {
@@ -438,7 +443,14 @@ class _HomePageState extends State<HomePage> {
       pageNumber = '00${604 - _currentPage + 1}';
     }
     print('REQUESTING PAGE: $pageNumber');
-    await _audioPlayer.play("http://everyayah.com/data/Abdul_Basit_Murattal_64kbps/PageMp3s/Page001.mp3", position: Duration(minutes: 0, seconds: 0));
+    await _audioPlayer.setUrl(
+        selectedAPI + 'Page$pageNumber.mp3');
+
+    await _audioPlayer.play(
+        selectedAPI + 'Page$pageNumber.mp3');
+    _audioPlayer.onPlayerError.listen((msg) {
+      print(msg);
+    });
     setState(() => playerState = PlayerState.playing);
   }
 
@@ -474,7 +486,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _downloadAudioFile(String url) async {
     final client = new http.Client();
     http.StreamedResponse response =
-        await client.send(http.Request("GET", Uri.parse(url)));
+    await client.send(http.Request("GET", Uri.parse(url)));
     var length = response.contentLength;
     var received = 0;
     final downloadFile = await _localFile;
@@ -518,7 +530,10 @@ class _CarouselState extends State<CarouselWidget> {
   Widget build(BuildContext context) {
     carouselSlider = CarouselSlider(
         scrollPhysics: BouncingScrollPhysics(),
-        height: MediaQuery.of(context).size.height,
+        height: MediaQuery
+            .of(context)
+            .size
+            .height,
         initialPage: 0,
         viewportFraction: 0.99,
         reverse: false,
@@ -542,7 +557,10 @@ class _CarouselState extends State<CarouselWidget> {
         }).toList());
 
     return Container(
-      width: MediaQuery.of(context).size.width,
+      width: MediaQuery
+          .of(context)
+          .size
+          .width,
       child: carouselSlider,
     );
   }
@@ -550,7 +568,10 @@ class _CarouselState extends State<CarouselWidget> {
   Widget _buildPagesList(BuildContext context, int position, double width) {
     return Container(
       margin: EdgeInsets.only(top: isExpanded ? 20.0 : 0.0),
-      width: MediaQuery.of(context).size.width,
+      width: MediaQuery
+          .of(context)
+          .size
+          .width,
       decoration: BoxDecoration(
           image: DecorationImage(
               image: AssetImage('assets/filtered/$position.jpg'),
