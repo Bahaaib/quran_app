@@ -4,7 +4,7 @@ class AppStrings {
 
 class ReadersAPI {
   static const List<String> readerURL = [
-    'http://everyayah.com/data/Abdul_Basit_Murattal_64kbps/PageMp3s/',
+    "http://everyayah.com/data/Abdul_Basit_Murattal_64kbps/PageMp3s/",
     'http://everyayah.com/data/Menshawi_16kbps/PageMp3s/',
     'http://everyayah.com/data/Maher_AlMuaiqly_64kbps/PageMp3s/',
     'http://everyayah.com/data/Abdurrahmaan_As-Sudais_64kbps/PageMp3s/',
@@ -16,7 +16,7 @@ class ReadersAPI {
 }
 
 class Readers {
-  static const ABDULBASIT = 'Abdul Basit Abdul Samad';
+  static const ABDULBASIT = "Abdul Basit Abdul Samad";
   static const SIDIYQ = 'Mohamad Sidiyq Almunshawi';
   static const MAHER = 'Maher Almaikulai';
   static const ALSUDAIS = 'Abdullrahman Alsudais';

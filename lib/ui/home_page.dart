@@ -1,9 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:quran_app/resources/colors.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:audioplayer/audioplayer.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:quran_app/resources/strings.dart';
 import 'package:quran_app/ui/sora_page.dart';
 import 'package:seekbar/seekbar.dart';
@@ -12,9 +11,6 @@ import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:quran_app/ui/readers_dialog.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
-import 'dart:typed_data';
 
 class HomePage extends StatefulWidget {
   Function navigateToPage;
@@ -405,7 +401,11 @@ class _HomePageState extends State<HomePage> {
     _audioPlayerStateSubscription =
         _audioPlayer.onPlayerStateChanged.listen((s) {
       if (s == AudioPlayerState.PLAYING) {
-        setState(() => duration = _audioPlayer.duration);
+        setState(() {
+          _audioPlayer
+              .getDuration()
+              .then((val) => duration = Duration(seconds: val));
+        });
       } else if (s == AudioPlayerState.STOPPED) {
         onComplete();
         setState(() {
@@ -438,7 +438,7 @@ class _HomePageState extends State<HomePage> {
       pageNumber = '00${604 - _currentPage + 1}';
     }
     print('REQUESTING PAGE: $pageNumber');
-    await _audioPlayer.play(selectedAPI + 'Page$pageNumber.mp3');
+    await _audioPlayer.play("http://everyayah.com/data/Abdul_Basit_Murattal_64kbps/PageMp3s/Page001.mp3", position: Duration(minutes: 0, seconds: 0));
     setState(() => playerState = PlayerState.playing);
   }
 
@@ -456,8 +456,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> seekTo(double portion) async {
-    double _exactTime = portion * duration.inSeconds;
-    await _audioPlayer.seek(_exactTime);
+    int _exactTime = (portion * duration.inSeconds).round();
+    await _audioPlayer.seek(Duration(seconds: _exactTime));
   }
 
   Future<String> get _localPath async {
