@@ -34,13 +34,13 @@ class _SoraPageState extends State<SoraPage> {
     if (database != null && database.isOpen) {
       print('DB was OPENED!');
       await database.close();
-      await loadDatabase();
+      await initDb();
       await _fetchSoraData();
       convertResults();
     } else {
       print('DB was CLOSED!');
 
-      await loadDatabase();
+      await initDb();
       await _fetchSoraData();
       convertResults();
     }
@@ -140,6 +140,31 @@ class _SoraPageState extends State<SoraPage> {
         data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
     await File(dbPath).writeAsBytes(bytes);
     database = await openDatabase(dbPath);
+  }
+  initDb() async {
+    var databasesPath = await getDatabasesPath();
+    var path = join(databasesPath, 'database/quran_db.db');
+    var exists = await databaseExists(path);
+    if (!exists) {
+      // Should happen only the first time you launch your application
+      print("Creating new copy from asset");
+
+      // Make sure the parent directory exists
+      try {
+        await Directory(dirname(path)).create(recursive: true);
+      } catch (_) {}
+
+      // Copy from asset
+      ByteData data = await rootBundle.load(join('assets','database/quran_db.db'));
+      List<int> bytes =
+      data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+
+      // Write and flush the bytes written
+      await File(path).writeAsBytes(bytes, flush: true);
+    } else {
+      print("Opening existing database");
+    }
+    database =  await openDatabase(path);
   }
 
   Future<List> _fetchSoraData() async {
